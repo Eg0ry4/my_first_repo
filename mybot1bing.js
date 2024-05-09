@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         My first Bot
 // @namespace    http://http://inoue.p-host.in
-// @version      1.03
+// @version      1.04
 // @description  Bot for Bing
 // @author       Kochetov Egor 066
 // @match        https://www.bing.com/*
@@ -16,13 +16,22 @@ let bingBtn = document.getElementsByClassName("search")[0];
 let links = document.links;
 let sites = {
   "auto.ru": ["Купить машину", "BMW e46 купить", "Раритетные иномарки в Москве", "Купить мотоцикл Harley-Davidson", "Купить мотоцикл типа cafe racer"],
-  "motoreforma.com": ["Аксессуары для тюнинга мототехники", "Запчасти для мототехники", "Тюнинг Maverick X3"],
+  "motoreforma.com": ["Прошивки для CAN-AM BRP", "вариатор CVTech CAN-AM", "Тюнинг Maverick X3"],
   "ironduke.ru": ["ТО автомобилей в Измайлово", "Мастерская Iron Duke", "Замена датчиков давления автомобиля"],
 }
 let sitesKeys = Object.keys(sites);
 let site = sitesKeys[getRandom(0, sitesKeys.length)];
 let keywords = sites[site];
 let keyword = keywords[getRandom(0, keywords.length)];
+let mouseClick = new MouseEvent("click");
+
+if (bingBtn !== undefined) {
+  document.cookie = `site=${site}`;
+} else if (location.hostname == "www.bing.com") {
+  site = getCookie("site");
+} else {
+  site = location.hostname;
+}
 
 //Работаем на главной странице
 if (bingBtn !== undefined) {
@@ -43,19 +52,17 @@ if (bingBtn !== undefined) {
   }, getRandom(300, 500))
   //Работаем на целевом сайте
   } else if (location.hostname == site) {
-    let linkIndex = getRandom(0, links.length);
-    let localLink = links[linkIndex];
     setInterval(() => {
+      let linkIndex = getRandom(0, links.length);
+      let localLink = links[linkIndex];
 
-      if (getRandom(0, 101) > 50) {
+      if (getRandom(0, 101) > 70) {
         location.href = "https://www.bing.com/";
       }
-
       if (links.length == 0) {
         location.href = site;
       }
-
-      if (localLink.href.includes("auto.ru")) {
+      if (localLink.href.includes(site)) {
         localLink.click();
       }
     }, getRandom(3000, 5000))
@@ -72,7 +79,7 @@ else if (document.querySelector(".b_scopebar") !== null) {
       console.log("Найден результат " + link);
       setTimeout(() => {
         link.click();
-      }, getRandom(2500, 4000));
+      }, getRandom(2000, 3000));
       break;
     }
   }
@@ -97,4 +104,10 @@ else if (document.querySelector(".b_scopebar") !== null) {
 }
 function getRandom(min,max) {
   return Math.floor(Math.random() * (max - min) + min)
+}
+function getCookie(name) {
+  let matches = document.cookie.match(new RegExp(
+    "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+  ));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
 }
